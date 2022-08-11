@@ -4,13 +4,6 @@ using UnityEngine;
 
 public class StarBehaviour : MonoBehaviour
 {
-    // Indica su quanti click deve fare la media di tempo
-    public int clicksTimeRange;
-
-    // Tempo che deve passare per il codice in update
-    public float timeT;
-    private float timeTStep;
-
     // Tempo durata animazione
     public float fxTime;
 
@@ -24,11 +17,8 @@ public class StarBehaviour : MonoBehaviour
     // Contiene i text al momento -- Servirà per i salvataggi
     public GameBehaviour gameBehaviour;
 
-    // Gestione del click medio tempo
-    private int actualClickArrayPos;
-    private float[] clicksTime;
-
-    private float timeClick;
+    // Serve per passare il click
+    public MultiplierBehaviour multiplierBehaviour;
 
     // Servono per ottimizzare alle diverse grandezze di schermo -- Da cambiare con un panel interno
     private float camHeight;
@@ -48,12 +38,6 @@ public class StarBehaviour : MonoBehaviour
 
     void Start()
     {
-        timeClick = 0;
-        timeTStep = timeT;
-
-        actualClickArrayPos = 0;
-        clicksTime = new float[clicksTimeRange];
-
         fadeCoroutine = null;
         clickable = true;
 
@@ -65,21 +49,12 @@ public class StarBehaviour : MonoBehaviour
         // Because the cam is in the vector 0 0 0
         xRandRange = camWidth/2 - spriteWidth;
         yRandRange = camHeight/2 - spriteHeight;
-
-        // Set to 0 all lastClickTime value
-        for (int i = 0; i < clicksTimeRange; i++) clicksTime[i] = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        timeClick += Time.deltaTime;
-
-        if (Time.time > timeT) {
-            Debug.LogWarning("Media: " + MediaClickTime());
-
-            timeT += timeTStep;
-        }
+        
     }
 
     public void OnMouseDown()
@@ -91,9 +66,11 @@ public class StarBehaviour : MonoBehaviour
             fadeCoroutine = StartCoroutine(FadeCicle(0f, fxTime));
             //  RandomPosition();  sta dentro fade cicle
 
-            AddClickTime();
+            // Aggiunge un click calcolando il suo tempo
+            multiplierBehaviour.AddClickTime();
+
             clickFX.Play();
-            gameData.setScore(gameData.getScore() + 1);
+            gameData.setScore(gameData.getScore() + (1 * gameData.getMultiplier()));
             gameBehaviour.refresh();
         }
     }
@@ -102,40 +79,6 @@ public class StarBehaviour : MonoBehaviour
     {
         newPos = new Vector3(Random.Range(-xRandRange, xRandRange), Random.Range(-yRandRange, yRandRange), 0);
         transform.position = newPos;
-    }
-
-    // Aggiunge il tempo passato dal click precedente a quello attuale all'array clicksTime
-    private void AddClickTime()
-    {
-        if (actualClickArrayPos >= clicksTimeRange - 1) actualClickArrayPos = 0;
-
-        clicksTime[actualClickArrayPos] = timeClick;
-
-        actualClickArrayPos++;
-        timeClick = 0;
-    }
-
-    // Esegue la media dell'array clickTime in correlazione col tempo dall'ultimo click
-    // Non so quanto sia effettivamente vera, but sembra funzionante
-    private float MediaClickTime()
-    {
-        int range = clicksTimeRange;
-        float media = 0;
-        
-
-        for (int i = 0; i<clicksTimeRange; i++)
-        {
-            if (clicksTime[i] == 0)
-            {
-                range--;
-            }
-
-            media += clicksTime[i];
-        }
-
-        media = (media / range) * timeClick;
-
-        return media;
     }
     
     // Animazione di fading da un colore ad un altro -- Da cambiare
