@@ -12,8 +12,13 @@ public class MultiplierBehaviour : MonoBehaviour
     public Image mulSliderFill;
     public TextMeshProUGUI mulScoreText;
 
+    // Slider Colors senza alfa
     public Color mulSliderBgColor;
     public Color mulSliderFillColor;
+
+    // Fade animation time
+    public float Fx_FadeTime;
+    public float Fx_SliderValueTime;
 
     // Tempo che deve passare per il codice in update
     private float timeT;
@@ -23,9 +28,9 @@ public class MultiplierBehaviour : MonoBehaviour
     public float mulScoreDown;
     private float mulScore;
 
+    public float mulGap;
     public float sliderAppearCap;
-    private float maxSliderValue;
-    private float minSliderValue;
+    private bool isVisible;
 
     // Start is called before the first frame update
     void Start()
@@ -35,8 +40,9 @@ public class MultiplierBehaviour : MonoBehaviour
 
         mulScoreText.text = "";
 
-        maxSliderValue = mulSlider.maxValue;
-        minSliderValue = mulSlider.minValue;
+        isVisible = false;
+        mulSliderBg.color = mulSliderBgColor;
+        mulSliderFill.color = mulSliderFillColor;
     }
 
     // Update is called once per frame
@@ -51,14 +57,19 @@ public class MultiplierBehaviour : MonoBehaviour
             }
 
             // Colori quando appaiono -- TODO WITH COROUTINE
-            if (mulScore > sliderAppearCap)
+            if (mulScore > (sliderAppearCap + mulScoreUp) && !isVisible)
             {
-               // mulSliderBg.color = mulSliderBgColor;
-               // mulSliderFill.color = mulSliderFillColor;
-            } else
+                isVisible = true;
+
+                StartCoroutine(FadeTo(1, Fx_FadeTime, mulSliderBg));
+                StartCoroutine(FadeTo(1, Fx_FadeTime, mulSliderFill));
+
+            } else if (mulScore < sliderAppearCap && isVisible)
             {
-               // mulSliderBg.color = new Color(1, 1, 1, 0);
-               // mulSliderFill.color = new Color(1, 1, 1, 0);
+                isVisible = false;
+
+                StartCoroutine(FadeTo(0, Fx_FadeTime, mulSliderFill));
+                StartCoroutine(FadeTo(0, Fx_FadeTime, mulSliderBg));
             }
 
             // Bug < 0 handler
@@ -67,7 +78,7 @@ public class MultiplierBehaviour : MonoBehaviour
             // Slider bug fix and max mulScore
             if (mulScore >= mulSlider.maxValue)
             {
-               mulSlider.value = mulSlider.maxValue;
+                mulSlider.value = mulSlider.maxValue;
                 mulScore = mulSlider.maxValue;
             }
             else
@@ -76,10 +87,10 @@ public class MultiplierBehaviour : MonoBehaviour
             }
 
             // Set multiplier -- TODO
-            if (mulScore > 60)
+            if (mulScore > sliderAppearCap + mulScoreUp)
             {
-                gameData.setMultiplier(2);
-                mulScoreText.text = "x2";
+                gameData.setMultiplier(((int)Mathf.Floor((mulScore - sliderAppearCap) / mulGap)) + 1);
+                mulScoreText.text = "x" + gameData.getMultiplier();
             } else
             {
                 gameData.setMultiplier(1);
@@ -87,7 +98,11 @@ public class MultiplierBehaviour : MonoBehaviour
             }
 
             // Change color on slider percentage
-            mulSliderFill.color = Color.Lerp(Color.red, Color.yellow, mulSlider.value / 100);
+            Color tempColor = Color.Lerp(Color.red, Color.yellow, mulSlider.value / 100);
+            tempColor.a = mulSliderFill.color.a;
+            mulSliderFill.color = tempColor;
+
+
 
             timeT += timeTStep;
         }
@@ -98,5 +113,24 @@ public class MultiplierBehaviour : MonoBehaviour
     {
         mulScore += mulScoreUp;
     }
-    
+
+    // Animazione di fading
+    IEnumerator FadeTo(float aValue, float aTime, Image image)
+    {
+        float alpha = image.color.a;
+        for (float t = 0.0f; t < 1.0f; t += Time.deltaTime / aTime)
+        {
+            Color newColor = image.color;
+            newColor.a = Mathf.Lerp(alpha, aValue, t);
+            image.color = newColor;
+
+            yield return null;
+        }
+
+        Color newColor2 = image.color;
+        newColor2.a = aValue;
+        image.color = newColor2;
+    }
+
+
 }

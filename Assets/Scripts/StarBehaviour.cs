@@ -91,6 +91,10 @@ public class StarBehaviour : MonoBehaviour
             spriteStar.color = newColor;
             yield return null;
         }
+
+        Color newColor2 = spriteStar.color;
+        newColor2.a = aValue;
+        spriteStar.color = newColor2;
     }
 
     // Animazione completa di FadeOut e FadeIn con in mezzo il RandomPosition()
