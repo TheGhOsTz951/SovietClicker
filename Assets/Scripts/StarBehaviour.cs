@@ -11,14 +11,14 @@ public class StarBehaviour : MonoBehaviour
     public Camera cam;
     public AudioSource clickFX;
 
-    // Script che contiene solo data
-    public GameData gameData;
-
     // Contiene i text al momento -- Servirà per i salvataggi
-    public GameBehaviour gameBehaviour;
+    public EndlessBehaviour gameBehaviour;
 
     // Serve per passare il click
-    public MultiplierBehaviour multiplierBehaviour;
+    public ScoreSliderBehaviour multiplierBehaviour;
+
+    // Ogni quanto tempo parte il codice in update
+    private float updateTime;
 
     // Servono per ottimizzare alle diverse grandezze di schermo -- Da cambiare con un panel interno
     private float camHeight;
@@ -30,6 +30,7 @@ public class StarBehaviour : MonoBehaviour
     private float yRandRange;
 
     private bool clickable;
+    private float timeT;
 
     private Vector3 newPos;
 
@@ -38,6 +39,8 @@ public class StarBehaviour : MonoBehaviour
 
     void Start()
     {
+        timeT = Time.time + updateTime;
+
         fadeCoroutine = null;
         clickable = true;
 
@@ -54,7 +57,22 @@ public class StarBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Time.time > timeT)
+        {
+            if (updateTime > fxTime)
+            {
+                // Fading effect with randomPosition
+                if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+                fadeCoroutine = StartCoroutine(FadeCicle(0f, fxTime));
+
+            } else
+            {
+                RandomPosition();
+            }
+
+            updateTime = GameData.getStarSpeed();
+            timeT += updateTime;
+        }
     }
 
     public void OnMouseDown()
@@ -67,11 +85,17 @@ public class StarBehaviour : MonoBehaviour
             //  RandomPosition();  sta dentro fade cicle
 
             // Aggiunge un click calcolando il suo tempo
-            multiplierBehaviour.AddClickTime();
+            //multiplierBehaviour.AddClickTime();
+
+            // Aggiunge tempo alla slider
+            GameData.setCountdownT(GameData.getCountdownT() + GameData.getUpCountdownT());
 
             clickFX.Play();
-            gameData.setScore(gameData.getScore() + (1 * gameData.getMultiplier()));
-            gameBehaviour.refresh();
+            //    gameData.setScore(gameData.getScore() + (1 * gameData.getMultiplier()));
+            //    gameBehaviour.refresh();
+
+            // Update fix
+            timeT = Time.time + updateTime;
         }
     }
 

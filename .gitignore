@@ -58,3 +58,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# Unity project and user settings
+/ProjectSettings/ProjectSettings.asset
+/UserSettings/EditorUserSettings.asset
+

@@ -4,37 +4,79 @@ using UnityEngine;
 
 public class GameData : MonoBehaviour
 {
-    private int score;
-    private int multiplier;
+    private static float countdownT;
+    private static float upCountdownT;
+    // Serve per farlo scendere di più secondi (viene moltiplicato con Time.deltaTime)
+    private static float mulCountDownT;
+    private static float thisGameT;
 
-    private void Start()
-    {
-        multiplier = 1;
+    private static float highscore;
+    private static float starSpeed;
 
-        if (PlayerPrefs.HasKey("score"))
-        {
-            score = PlayerPrefs.GetInt("score");
-        }
+    private void Start() 
+    { 
+        if (PlayerPrefs.HasKey("highscore")) highscore = PlayerPrefs.GetFloat("highscore");
+        else highscore = 0;
     }
 
-    public int getScore()
+    public static float getHighScore()
     {
-        return score;
+        return highscore;
     }
 
-    public void setScore(int newScore)
+    public static void setHighScore(float newHighScore)
     {
-        score = newScore;
-        PlayerPrefs.SetInt("score", getScore());
+        highscore = newHighScore;
+        PlayerPrefs.SetFloat("highscore", getHighScore());
     }
 
-    public void setMultiplier(int newMultiplier)
+    public static float getCountdownT()
     {
-        multiplier = newMultiplier;
+        return countdownT;
     }
 
-    public int getMultiplier()
+    public static void setCountdownT(float newCountdownT)
     {
-        return multiplier;
+        countdownT = newCountdownT;
+    }
+
+    public static float getUpCountdownT()
+    {
+        return upCountdownT;
+    }
+
+    public static void setUpCountdownT(float newUpCountdownT)
+    {
+        upCountdownT = newUpCountdownT;
+    }
+
+    public static float getThisGameT()
+    {
+        return thisGameT;
+    }
+
+    public static void setThisGameT(float newThisGameT)
+    {
+        thisGameT = newThisGameT;
+    }
+
+    public static float getStarSpeed()
+    {
+        return starSpeed;
+    }
+
+    public static void setStarSpeed(float newStarSpeed)
+    {
+        starSpeed = newStarSpeed;
+    }
+
+    public static float getMulCountDownT()
+    {
+        return mulCountDownT;
+    }
+
+    public static void setMulCountDownT(float newMulCountDownT)
+    {
+        mulCountDownT = newMulCountDownT;
     }
 }
