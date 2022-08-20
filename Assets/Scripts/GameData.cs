@@ -7,6 +7,9 @@ public class GameData : MonoBehaviour
     // Star related
     private static int spriteClick;
 
+    // End game
+    private static bool isEndGame;
+
     private static float countdownT;
     private static float upCountdownT;
     // Serve per farlo scendere di più secondi (viene moltiplicato con Time.deltaTime)
@@ -18,6 +21,8 @@ public class GameData : MonoBehaviour
     private static float timeSliderMax;
 
     private static float highscore;
+
+    public static bool IsEndGame { get => isEndGame; set => isEndGame = value; }
 
     public static int getSpriteClick()
     {

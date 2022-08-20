@@ -5,9 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class GameMethods : MonoBehaviour
 {
-    public static void changeScene(string newSceneName)
+    public static void ChangeScene(string newSceneName)
     {
         SceneManager.LoadScene(newSceneName);
+    }
+
+    public static IEnumerator ChangeScene(string newSceneName, float s)
+    {
+        yield return new WaitForSeconds(s);
+        GameMethods.ChangeScene(newSceneName);
     }
 
     public static string FormatToTime(float num)
@@ -26,4 +32,6 @@ public class GameMethods : MonoBehaviour
 
         return res;
     }
+
+    
 }

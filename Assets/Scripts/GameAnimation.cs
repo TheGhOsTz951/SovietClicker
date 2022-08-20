@@ -12,37 +12,16 @@ public class GameAnimation : MonoBehaviour
         LeanTween.alpha(objToAnim, newValue, time);
     }
 
-    /* Animazione completa di FadeOut e FadeIn con in mezzo il RandomPosition()
-    IEnumerator FadeCicle(float aValue, float aTime)
+    public static void FadeTo(FadeAnimation sliderAnim)
     {
-        clickable = false;
+        LeanTween.alphaCanvas(sliderAnim.objToAnim.GetComponent<CanvasGroup>(), sliderAnim.value, sliderAnim.animT);
+    }
 
-        // Start and wait for FadeTo to finish
-        yield return FadeTo(aValue, aTime);
-        RandomPosition();
-
-        aValue = 1 - aValue;
-
-        // Start and wait for FadeTo to finish
-        clickable = true;
-        yield return FadeTo(aValue, aTime);
-    }*/
-
-
-
-
-
-
-    /*IEnumerator FailClickAnim()
+    public static void BlinkAlphaAnim(BlinkingAnim blinkingValues)
     {
-        isFailClickAnim = true;
-        borderAnim.SetTrigger("Start");
+        LeanTween.alphaCanvas(blinkingValues.objToAnim.GetComponent<CanvasGroup>(), blinkingValues.value, blinkingValues.animT)
+            .setEase(LeanTweenType.easeInOutQuint)
+            .setLoopPingPong(5);
+    }
 
-        yield return new WaitForSeconds(borderAnimT);
-
-        borderAnim.SetTrigger("End");
-
-        yield return new WaitForSeconds(borderAnimT);
-        isFailClickAnim = false;
-    }*/
 }

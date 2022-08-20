@@ -97,5 +97,8 @@ public class SpriteBehaviour : MonoBehaviour
         spriteStar.transform.position = newPos;
     }
     
-    
+    public void ChangePos(Vector3 newPos)
+    {
+        spriteStar.transform.position = newPos;
+    }
 }

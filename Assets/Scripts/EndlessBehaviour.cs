@@ -6,12 +6,22 @@ using UnityEngine.UI;
 
 // Custom serializable class
 [System.Serializable]
-public class Animation
+public class FadeAnimation
 {
     public GameObject objToAnim;
     public CanvasGroup canvasGroup;
     public float value = 1;
-    public float time = 1;
+    public float animT = 0.1f;
+}
+
+[System.Serializable]
+public class BlinkingAnim
+{
+    public CanvasGroup objToAnim;
+    public float value = 1;
+    public float animT = 0.1f;
+    public float waitT = 0.5f;
+    public int blinkNum = 5;
 }
 
 public class EndlessBehaviour : MonoBehaviour
@@ -43,15 +53,15 @@ public class EndlessBehaviour : MonoBehaviour
     public float sliderDiffStep;
 
     [Header("- Animations")]
-    public Animation onHitAnim;
-    public Animation onMissAnim;
+    public FadeAnimation onHitAnim;
+    public FadeAnimation onMissAnim;
+    public FadeAnimation endSliderFadeAnim;
+    public BlinkingAnim endTxtBlinkAnim;
 
     [Header("- Other")]
     [Tooltip("Script che gestisce le scene")]
     public string newSceneName;
-    public int scoreTextInterval;
-    public float blinkTotTime;
-    public float blinkTime;
+    public string endGameString;
 
     private float timeT;
     private float tempSpriteClick;
@@ -61,6 +71,9 @@ public class EndlessBehaviour : MonoBehaviour
     {
         // Update every timeT
         timeT = Time.time + updateTime;
+
+        // Know when the game is ended
+        GameData.IsEndGame = false;
 
         // Difficulty handler
         diffChangeDeltaT = difficultyChangeT;
@@ -90,6 +103,8 @@ public class EndlessBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GameData.IsEndGame) return;
+
         // Se qualcosa è stato cliccato nel campo 2d
         if (isClickChanged())
         {
@@ -103,14 +118,7 @@ public class EndlessBehaviour : MonoBehaviour
         // Se il countdown è finito
         if (GameData.getCountdownT() <= 0)
         {
-            GameData.setCountdownT(0);
-            
-            if (GameData.getThisGameT() > GameData.getHighScore())
-            {
-                GameData.setHighScore(GameData.getThisGameT());
-            }
-
-            GameMethods.changeScene(newSceneName);
+            EndGame();
         } 
         // Se il countdown è attivo
         else
@@ -159,7 +167,7 @@ public class EndlessBehaviour : MonoBehaviour
         GameData.setCountdownT(GameData.getCountdownT() + GameData.getUpCountdownT() * GameData.getBonusMul());
 
         LeanTween.cancel(onHitAnim.objToAnim);
-        LeanTween.alpha(onHitAnim.objToAnim, onHitAnim.value, onHitAnim.time)
+        LeanTween.alpha(onHitAnim.objToAnim, onHitAnim.value, onHitAnim.animT)
             .setOnComplete(ChangePosAndAnim);
     }
 
@@ -168,7 +176,7 @@ public class EndlessBehaviour : MonoBehaviour
     {
         spriteBehaviour.RandomPosition();
 
-        LeanTween.alpha(onHitAnim.objToAnim, 1-onHitAnim.value, onHitAnim.time)
+        LeanTween.alpha(onHitAnim.objToAnim, 1-onHitAnim.value, onHitAnim.animT)
             .setOnCompleteParam(isClickable = true);
     }
 
@@ -183,38 +191,29 @@ public class EndlessBehaviour : MonoBehaviour
         LeanTween.cancel(onMissAnim.objToAnim);
         onMissAnim.canvasGroup.alpha = 0f;
 
-        LeanTween.alphaCanvas(onMissAnim.canvasGroup, onMissAnim.value, onMissAnim.time)
+        LeanTween.alphaCanvas(onMissAnim.canvasGroup, onMissAnim.value, onMissAnim.animT)
             .setEasePunch();
     }
- 
 
-
-
-
-
-    /* Inutilizzato
-    IEnumerator BlinkingText(float tDuration, float tFlash, string text)
+    private void EndGame()
     {
-        isBlinking = true;
-        scoreText.text = text;
+        // Game is ended
+        GameData.IsEndGame = true;
 
-        cykaFX.Play();
+        GameData.setCountdownT(0);
 
-        for (int i = 0; i < tDuration/tFlash; i++)
+        if (GameData.getThisGameT() > GameData.getHighScore())
         {
-            if (scoreText.color.a == 1)
-            {
-                yield return new WaitForSeconds(tFlash);
-                scoreText.color = new Color(1, 1, 1, 0);
-            } else
-            {
-                yield return new WaitForSeconds(tFlash);
-                scoreText.color = new Color(1, 1, 1, 1);
-            }
+            GameData.setHighScore(GameData.getThisGameT());
         }
 
-        scoreText.color = new Color(1, 1, 1, 1);
-        scoreText.text = "Score: " + gameData.getScore();
-        isBlinking = false;
-    }*/
+        spriteBehaviour.ChangePos(new Vector3(0, 0, 0));
+        GameAnimation.FadeTo(endSliderFadeAnim);
+
+        thisGameTimeTxt.text = endGameString;
+        GameAnimation.BlinkAlphaAnim(endTxtBlinkAnim);
+
+        // TODO non va bene solo endtxt.blinkNUm, da fare matematica
+        StartCoroutine(GameMethods.ChangeScene(newSceneName, endTxtBlinkAnim.blinkNum));
+    }
 }
