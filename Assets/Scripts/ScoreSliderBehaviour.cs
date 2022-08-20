@@ -36,18 +36,14 @@ public class ScoreSliderBehaviour : MonoBehaviour
     public float mulScoreDown;
     private float mulScore;
 
-    [Header("-- Other")]
-    public string ScriviQuelloCheVuoiTantoSonoInutile;
-    public float Fx_maxValueTime;
-    private Coroutine Fx_maxValue;
-    private bool isBoostTime;
-
     // Start is called before the first frame update
     void Start()
     {
         timeT = Time.time + updateTime;
 
-        sliderObj.maxValue = GameData.getCountdownT();
+        GameData.setTimeSliderMax(GameData.getCountdownT() * 2);
+
+        sliderObj.maxValue = GameData.getTimeSliderMax();
         sliderObj.minValue = 0;
     }
 
@@ -56,6 +52,11 @@ public class ScoreSliderBehaviour : MonoBehaviour
     {
         if (Time.time > timeT)
         {
+            if (GameData.getTimeSliderMax() > sliderObj.maxValue)
+            {
+                sliderObj.maxValue = GameData.getTimeSliderMax();
+            }
+
             if (GameData.getCountdownT() > sliderObj.maxValue)
             {
                 GameData.setCountdownT(sliderObj.maxValue);
@@ -97,7 +98,7 @@ public class ScoreSliderBehaviour : MonoBehaviour
         image.color = newColor2;
     }
 
-    IEnumerator BoostTime(float duration)
+   /* IEnumerator BoostTime(float duration)
     {
         isBoostTime = true;
         float tempMulScoreDown = mulScoreDown;
@@ -124,5 +125,5 @@ public class ScoreSliderBehaviour : MonoBehaviour
         isBoostTime = false;
         isVisible = false;
 
-    }
+    }*/
 }

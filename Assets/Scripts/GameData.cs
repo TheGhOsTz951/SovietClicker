@@ -4,19 +4,29 @@ using UnityEngine;
 
 public class GameData : MonoBehaviour
 {
+    // Star related
+    private static int spriteClick;
+
     private static float countdownT;
     private static float upCountdownT;
     // Serve per farlo scendere di più secondi (viene moltiplicato con Time.deltaTime)
     private static float mulCountDownT;
     private static float thisGameT;
+    private static float bonusMul;
+    private static float rowClick;
+
+    private static float timeSliderMax;
 
     private static float highscore;
-    private static float starSpeed;
 
-    private void Start() 
-    { 
-        if (PlayerPrefs.HasKey("highscore")) highscore = PlayerPrefs.GetFloat("highscore");
-        else highscore = 0;
+    public static int getSpriteClick()
+    {
+        return spriteClick;
+    }
+
+    public static void setSpriteClick(int newSpriteClick)
+    {
+        spriteClick = newSpriteClick;
     }
 
     public static float getHighScore()
@@ -60,16 +70,6 @@ public class GameData : MonoBehaviour
         thisGameT = newThisGameT;
     }
 
-    public static float getStarSpeed()
-    {
-        return starSpeed;
-    }
-
-    public static void setStarSpeed(float newStarSpeed)
-    {
-        starSpeed = newStarSpeed;
-    }
-
     public static float getMulCountDownT()
     {
         return mulCountDownT;
@@ -78,5 +78,37 @@ public class GameData : MonoBehaviour
     public static void setMulCountDownT(float newMulCountDownT)
     {
         mulCountDownT = newMulCountDownT;
+    }
+
+    public static float getBonusMul()
+    {
+        return bonusMul;
+    }
+
+    public static void setBonusMul(float newBonusMul)
+    {
+        bonusMul = newBonusMul;
+    }
+
+    public static float getRowClick()
+    {
+        return rowClick;
+    }
+
+    public static void setRowClick(float newRowClick)
+    {
+        if (newRowClick < 0) newRowClick = 0;
+
+        rowClick = newRowClick;
+    }
+
+    public static float getTimeSliderMax()
+    {
+        return timeSliderMax;
+    }
+
+    public static void setTimeSliderMax(float newTimeSliderMax)
+    {
+        timeSliderMax = newTimeSliderMax;
     }
 }

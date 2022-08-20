@@ -10,6 +10,9 @@ public class MainMenuBehaviour : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (PlayerPrefs.HasKey("highscore")) GameData.setHighScore(PlayerPrefs.GetFloat("highscore"));
+        else GameData.setHighScore(0);
+
         if (GameData.getHighScore() > 0)
         {
             highscoreText.text = "Highscore: " + GameMethods.FormatToTime(GameData.getHighScore());
@@ -22,7 +25,7 @@ public class MainMenuBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void refreshText()

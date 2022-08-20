@@ -2,61 +2,105 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+
+// Custom serializable class
+[System.Serializable]
+public class Animation
+{
+    public GameObject objToAnim;
+    public CanvasGroup canvasGroup;
+    public float value = 1;
+    public float time = 1;
+}
 
 public class EndlessBehaviour : MonoBehaviour
 {
-    public int scoreTextInterval;
-    public float blinkTotTime;
-    public float blinkTime;
+    [Header("- Components")]
+    public SpriteBehaviour spriteBehaviour;
+    public TextMeshProUGUI thisGameTimeTxt;
+    public TextMeshProUGUI bonusMulTxt;
+    public AudioSource cykaFX;
 
+    [Header("- Time")]
     public float countdownT;
     public float upCountdownT;
+    [Tooltip("Ogni quanto tempo parte il codice in update")]
+    public float updateTime;
 
+    [Header("- Difficulty")]
     // Servono per decidere ogni quanto tempo aumenta la difficolta
-    public float difficultyChangeS;
-    public float speedMul;
-    public float baseStarSpeed;
+    public float difficultyChangeT;
+    private float diffChangeDeltaT;
     [Tooltip("Moltiplicatore di Up Countdown T")]
     public float difficultyUpCountMul;
     [Tooltip("Moltiplicatore di Mul Countdown T")]
     public float difficultyCountMul;
+    public float startCountDownMul;
+    public float mulCountDown;
 
-    public TextMeshProUGUI thisGameTimeTxt;
-    public AudioSource cykaFX;
+    [Header("- Slider")]
+    public float sliderDiffStep;
 
-    // Ogni quanto tempo parte il codice in update
-    public float updateTime;
+    [Header("- Animations")]
+    public Animation onHitAnim;
+    public Animation onMissAnim;
 
-    // Script che gestisce le scene
+    [Header("- Other")]
+    [Tooltip("Script che gestisce le scene")]
     public string newSceneName;
-
-    private string[] scoreTextWords = {"amazing", "gualtastic", "supreme", "another one", "our red", "nazi suck", "сука блять"};
-    private bool isBlinking;
-
-    // Per poter stoppare la coroutine
-    private Coroutine blinkCoroutine;
+    public int scoreTextInterval;
+    public float blinkTotTime;
+    public float blinkTime;
 
     private float timeT;
+    private float tempSpriteClick;
+    private bool isClickable;
 
     void Start()
     {
+        // Update every timeT
         timeT = Time.time + updateTime;
 
-        GameData.setThisGameT(0);
+        // Difficulty handler
+        diffChangeDeltaT = difficultyChangeT;
+        
+        // Time txt
         thisGameTimeTxt.text = GameMethods.FormatToTime(GameData.getThisGameT());
 
+        // Sprite click
+        isClickable = true;
+        tempSpriteClick = 0;
+        GameData.setSpriteClick(0);
+
+        // Setting starting parameters about time
+        GameData.setThisGameT(0);
         GameData.setCountdownT(countdownT);
         GameData.setUpCountdownT(upCountdownT);
-        GameData.setMulCountDownT(1);
-        GameData.setStarSpeed(baseStarSpeed);
 
-        //    blinkCoroutine = null;
-        //    refresh();
+        // Moltiplicator of countdown velocity
+        mulCountDown = startCountDownMul;
+        GameData.setMulCountDownT(startCountDownMul);
+
+        // Bonus if rowClicking
+        GameData.setBonusMul(1);
+        bonusMulTxt.text = "";
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Se qualcosa è stato cliccato nel campo 2d
+        if (isClickChanged())
+        {
+            if (GameData.getSpriteClick() > tempSpriteClick) SpriteClicked();
+            else SpriteMissed();
+
+            //GameData.setBonusMul(1 + GameData.getRowClick() * 0.1f);
+            tempSpriteClick = GameData.getSpriteClick();
+        }
+
+        // Se il countdown è finito
         if (GameData.getCountdownT() <= 0)
         {
             GameData.setCountdownT(0);
@@ -67,17 +111,20 @@ public class EndlessBehaviour : MonoBehaviour
             }
 
             GameMethods.changeScene(newSceneName);
-        } else
+        } 
+        // Se il countdown è attivo
+        else
         {
-            GameData.setCountdownT(GameData.getCountdownT() - (Time.deltaTime * GameData.getMulCountDownT()));
+          //  mulCountDown = GameData.getMulCountDownT() * ;
+            GameData.setCountdownT(GameData.getCountdownT() - (Time.deltaTime * mulCountDown));
             GameData.setThisGameT(GameData.getThisGameT() + Time.deltaTime);
         }
 
-        if (GameData.getThisGameT() > difficultyChangeS)
+        // Aumenta la difficoltà ogni T
+        if (GameData.getThisGameT() > diffChangeDeltaT)
         {
-            difficultyChangeS += GameData.getThisGameT();
+            diffChangeDeltaT += difficultyChangeT;
 
-            GameData.setStarSpeed(GameData.getStarSpeed() * speedMul);
             GameData.setUpCountdownT(GameData.getUpCountdownT() * difficultyUpCountMul);
             GameData.setMulCountDownT(GameData.getMulCountDownT() * difficultyCountMul);
         }
@@ -86,47 +133,64 @@ public class EndlessBehaviour : MonoBehaviour
         {
             thisGameTimeTxt.text = GameMethods.FormatToTime(GameData.getThisGameT());
 
+            if (GameData.getBonusMul() > 1.1f) bonusMulTxt.text = "x" + GameData.getBonusMul().ToString("0.0");
+            else bonusMulTxt.text = "";
+
             timeT += updateTime;
         }
     }
-
-    public void AnotherRefresh()
+    
+    // Restituisce se la variabile sprite click è cambiata -- 0 No  1 Up 2 Down
+    // Se non è clickable return false
+    private bool isClickChanged()
     {
+        if (!isClickable) tempSpriteClick = GameData.getSpriteClick();
 
+        if (GameData.getSpriteClick() != tempSpriteClick) return true;
+
+        return false;
     }
 
-    
-
-    /* Inutilizzato
-    public void refresh()
+    private void SpriteClicked()
     {
-        if (GameData.getScore() <= 0)
-        {
-            scoreText.text = "Start";
-        } else
-        {
-            // Attiva il blinking text raggiunto un determinato score -- DA CAMBIARE
-            if (GameData.getScore() % scoreTextInterval == 0)
-            {
-                // Check if the coroutine is active -- Piu o meno
-                if (blinkCoroutine != null)
-                {
-                    StopCoroutine(blinkCoroutine);
-                }
+        isClickable = false;
 
-                scoreText.text = "Score: " + GameData.getScore();
-                string tempText = scoreTextWords[Random.Range(0, scoreTextWords.Length)];
+        GameData.setRowClick(GameData.getRowClick() + 1);
+        GameData.setCountdownT(GameData.getCountdownT() + GameData.getUpCountdownT() * GameData.getBonusMul());
 
-                blinkCoroutine = StartCoroutine(BlinkingText(blinkTotTime, blinkTime, tempText));
-            } 
-            
-            // Se non sta in blinking text aggiorna normale
-            if (!isBlinking)
-            {
-                scoreText.text = "Score: " + GameData.getScore();
-            }
-        }
-    }*/
+        LeanTween.cancel(onHitAnim.objToAnim);
+        LeanTween.alpha(onHitAnim.objToAnim, onHitAnim.value, onHitAnim.time)
+            .setOnComplete(ChangePosAndAnim);
+    }
+
+    // Serve per far funzionare bene le anim
+    private void ChangePosAndAnim()
+    {
+        spriteBehaviour.RandomPosition();
+
+        LeanTween.alpha(onHitAnim.objToAnim, 1-onHitAnim.value, onHitAnim.time)
+            .setOnCompleteParam(isClickable = true);
+    }
+
+    private void SpriteMissed()
+    {
+        GameData.setRowClick(GameData.getRowClick() - 2);
+
+        // Se non esiste il gruppo di canva non fa l'anim
+        if (onMissAnim.canvasGroup == null) return;
+
+        // Press spamming bug handler
+        LeanTween.cancel(onMissAnim.objToAnim);
+        onMissAnim.canvasGroup.alpha = 0f;
+
+        LeanTween.alphaCanvas(onMissAnim.canvasGroup, onMissAnim.value, onMissAnim.time)
+            .setEasePunch();
+    }
+ 
+
+
+
+
 
     /* Inutilizzato
     IEnumerator BlinkingText(float tDuration, float tFlash, string text)
