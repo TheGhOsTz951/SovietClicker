@@ -10,9 +10,12 @@ public class GameMethods : MonoBehaviour
         SceneManager.LoadScene(newSceneName);
     }
 
-    public static IEnumerator ChangeScene(string newSceneName, float s)
+    public static IEnumerator ChangeSceneAnim(FadeAnimation fadeValues, string newSceneName, float s)
     {
         yield return new WaitForSeconds(s);
+        GameAnimation.FadeTo(fadeValues);
+
+        yield return new WaitForSeconds(fadeValues.animT);
         GameMethods.ChangeScene(newSceneName);
     }
 
@@ -32,6 +35,4 @@ public class GameMethods : MonoBehaviour
 
         return res;
     }
-
-    
 }

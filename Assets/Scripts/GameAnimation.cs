@@ -12,16 +12,16 @@ public class GameAnimation : MonoBehaviour
         LeanTween.alpha(objToAnim, newValue, time);
     }
 
-    public static void FadeTo(FadeAnimation sliderAnim)
+    public static void FadeTo(FadeAnimation fadeValues)
     {
-        LeanTween.alphaCanvas(sliderAnim.objToAnim.GetComponent<CanvasGroup>(), sliderAnim.value, sliderAnim.animT);
+        LeanTween.alphaCanvas(fadeValues.canvasGroup, fadeValues.value, fadeValues.animT);
     }
 
     public static void BlinkAlphaAnim(BlinkingAnim blinkingValues)
     {
-        LeanTween.alphaCanvas(blinkingValues.objToAnim.GetComponent<CanvasGroup>(), blinkingValues.value, blinkingValues.animT)
+        LeanTween.alphaCanvas(blinkingValues.objToAnim, blinkingValues.value, blinkingValues.animT)
             .setEase(LeanTweenType.easeInOutQuint)
-            .setLoopPingPong(5);
+            .setLoopPingPong(blinkingValues.blinkNum);
     }
 
 }

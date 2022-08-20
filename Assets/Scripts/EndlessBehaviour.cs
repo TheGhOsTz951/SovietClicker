@@ -18,9 +18,8 @@ public class FadeAnimation
 public class BlinkingAnim
 {
     public CanvasGroup objToAnim;
-    public float value = 1;
+    public float value = 0;
     public float animT = 0.1f;
-    public float waitT = 0.5f;
     public int blinkNum = 5;
 }
 
@@ -56,6 +55,7 @@ public class EndlessBehaviour : MonoBehaviour
     public FadeAnimation onHitAnim;
     public FadeAnimation onMissAnim;
     public FadeAnimation endSliderFadeAnim;
+    public FadeAnimation endSceneAnim;
     public BlinkingAnim endTxtBlinkAnim;
 
     [Header("- Other")]
@@ -66,6 +66,11 @@ public class EndlessBehaviour : MonoBehaviour
     private float timeT;
     private float tempSpriteClick;
     private bool isClickable;
+
+    private void Awake()
+    {
+        
+    }
 
     void Start()
     {
@@ -105,6 +110,20 @@ public class EndlessBehaviour : MonoBehaviour
     {
         if (GameData.IsEndGame) return;
 
+        // Se il countdown è finito
+        if (GameData.getCountdownT() <= 0)
+        {
+            EndGame();
+            return;
+        } 
+        // Se il countdown è attivo
+        else
+        {
+          //  mulCountDown = GameData.getMulCountDownT() * ;
+            GameData.setCountdownT(GameData.getCountdownT() - (Time.deltaTime * mulCountDown));
+            GameData.setThisGameT(GameData.getThisGameT() + Time.deltaTime);
+        }
+
         // Se qualcosa è stato cliccato nel campo 2d
         if (isClickChanged())
         {
@@ -115,18 +134,6 @@ public class EndlessBehaviour : MonoBehaviour
             tempSpriteClick = GameData.getSpriteClick();
         }
 
-        // Se il countdown è finito
-        if (GameData.getCountdownT() <= 0)
-        {
-            EndGame();
-        } 
-        // Se il countdown è attivo
-        else
-        {
-          //  mulCountDown = GameData.getMulCountDownT() * ;
-            GameData.setCountdownT(GameData.getCountdownT() - (Time.deltaTime * mulCountDown));
-            GameData.setThisGameT(GameData.getThisGameT() + Time.deltaTime);
-        }
 
         // Aumenta la difficoltà ogni T
         if (GameData.getThisGameT() > diffChangeDeltaT)
@@ -159,6 +166,7 @@ public class EndlessBehaviour : MonoBehaviour
         return false;
     }
 
+    // Da modificare
     private void SpriteClicked()
     {
         isClickable = false;
@@ -213,7 +221,6 @@ public class EndlessBehaviour : MonoBehaviour
         thisGameTimeTxt.text = endGameString;
         GameAnimation.BlinkAlphaAnim(endTxtBlinkAnim);
 
-        // TODO non va bene solo endtxt.blinkNUm, da fare matematica
-        StartCoroutine(GameMethods.ChangeScene(newSceneName, endTxtBlinkAnim.blinkNum));
+        StartCoroutine(GameMethods.ChangeSceneAnim(endSceneAnim, newSceneName, (endTxtBlinkAnim.blinkNum * endTxtBlinkAnim.animT) * 2));
     }
 }

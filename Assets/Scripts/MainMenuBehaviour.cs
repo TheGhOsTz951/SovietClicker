@@ -6,6 +6,7 @@ using UnityEngine;
 public class MainMenuBehaviour : MonoBehaviour
 {
     public TextMeshProUGUI highscoreText;
+    public FadeAnimation awakeAnim;
 
     // Start is called before the first frame update
     void Start()
@@ -20,6 +21,12 @@ public class MainMenuBehaviour : MonoBehaviour
         {
             highscoreText.text = "No highscore commander";
         }
+    }
+
+    private void Awake()
+    {
+        awakeAnim.canvasGroup.alpha = 0;
+        GameAnimation.FadeTo(awakeAnim);
     }
 
     // Update is called once per frame

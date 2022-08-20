@@ -445,8 +445,8 @@ CanvasGroup:
   m_GameObject: {fileID: 505991611}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &519420028
 GameObject:
@@ -1083,17 +1083,21 @@ MonoBehaviour:
     animT: 1
   endSliderFadeAnim:
     objToAnim: {fileID: 638051949}
-    canvasGroup: {fileID: 0}
-    value: 1
+    canvasGroup: {fileID: 638051952}
+    value: 0
     animT: 0.5
+  endSceneAnim:
+    objToAnim: {fileID: 505991611}
+    canvasGroup: {fileID: 505991616}
+    value: 0
+    animT: 1
   endTxtBlinkAnim:
     objToAnim: {fileID: 1668138403}
     value: 0
     animT: 0.5
-    waitT: 0.3
-    blinkNum: 5
+    blinkNum: 4
   newSceneName: MainMenu
-  endGameString: Time up
+  endGameString: Time is up
 --- !u!114 &1608612784
 MonoBehaviour:
   m_ObjectHideFlags: 0
