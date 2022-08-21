@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 92446f3f292c14540acaca013f1f449a
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - ARISTOTLE
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 6ff52895b5d2f0746b8ce9179eb73c69, type: 3}
+  - {fileID: 12800000, guid: 50b03e234dab5a04dba930fdecbafe83, type: 3}
+  - {fileID: 12800000, guid: 6f661b3405c309e4c87a281ce3496745, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
