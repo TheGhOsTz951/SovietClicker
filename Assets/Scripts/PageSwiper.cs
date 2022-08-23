@@ -5,55 +5,64 @@ using UnityEngine.EventSystems;
 
 public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler
 {
-    private Vector3 panelLoc;
-    public float percThreshold = 0.2f;
+    private Vector3 panelLocation;
+    public float percentThreshold = 0.2f;
     public float easing = 0.5f;
+    public int totalPages = 1;
+    private int currentPage = 1;
+
+    private bool isMoving;
 
     // Start is called before the first frame update
     void Start()
     {
-        panelLoc = transform.position;
+        panelLocation = transform.position;
+
+        isMoving = false;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public void OnEndDrag(PointerEventData data)
     {
-        // SCREEN WIDTH... MA DIOPORCO
-        float perc = (eventData.pressPosition.x - eventData.position.x) / Screen.width;
+        if (isMoving) return;
 
-        if (Mathf.Abs(perc) >= percThreshold)
+        float percentage = (data.pressPosition.x - data.position.x) / Screen.width;
+        if (Mathf.Abs(percentage) >= percentThreshold)
         {
-            Vector3 newLocation = panelLoc;
-
-            if (perc > 0)
+            Vector3 newLocation = panelLocation;
+            if (percentage > 0 && currentPage < totalPages)
             {
+                currentPage++;
                 newLocation += new Vector3(-Screen.width, 0, 0);
-            } else if (perc < 0)
+            }
+            else if (percentage < 0 && currentPage > 1)
             {
+                currentPage--;
                 newLocation += new Vector3(Screen.width, 0, 0);
             }
-
             StartCoroutine(SmoothMove(transform.position, newLocation, easing));
-            transform.position = newLocation;
-            panelLoc = newLocation;
-        } else
+            panelLocation = newLocation;
+        }
+        else
         {
-            StartCoroutine(SmoothMove(transform.position, panelLoc, easing));
+            StartCoroutine(SmoothMove(transform.position, panelLocation, easing));
         }
     }
-
-    IEnumerator SmoothMove(Vector3 startPos, Vector3 endPos, float s)
+    IEnumerator SmoothMove(Vector3 startpos, Vector3 endpos, float seconds)
     {
-        float t = 0.0f;
+        isMoving = true;
 
-        while(t <= 1.0)
+        float t = 0f;
+        while (t <= 1.0)
         {
-            t += Time.deltaTime / s;
-            transform.position = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, t));
+            t += Time.deltaTime / seconds;
+            transform.position = Vector3.Lerp(startpos, endpos, Mathf.SmoothStep(0f, 1f, t));
             yield return null;
         }
+
+        isMoving = false;
     }
 }

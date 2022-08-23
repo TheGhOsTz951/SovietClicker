@@ -39,14 +39,13 @@ public class EndlessBehaviour : MonoBehaviour
 
     [Header("- Difficulty")]
     // Servono per decidere ogni quanto tempo aumenta la difficolta
-    public float difficultyChangeT;
-    private float diffChangeDeltaT;
-    [Tooltip("Moltiplicatore di Up Countdown T")]
-    public float difficultyUpCountMul;
-    [Tooltip("Moltiplicatore di Mul Countdown T")]
-    public float difficultyCountMul;
-    public float startCountDownMul;
-    public float mulCountDown;
+    public float valueCap;
+    public float diffAumento;
+    public float scoreDiffAumento;
+    private float valueDownPerSec;
+    private float clickValueDownPerSec;
+    private float diffMul;
+    private float keepScoreDiffAumento;
 
     [Header("- Slider")]
     public float sliderDiffStep;
@@ -81,7 +80,10 @@ public class EndlessBehaviour : MonoBehaviour
         GameData.IsEndGame = false;
 
         // Difficulty handler
-        diffChangeDeltaT = difficultyChangeT;
+        diffMul = 1;
+        valueDownPerSec = 1;
+        clickValueDownPerSec = 1;
+        keepScoreDiffAumento = scoreDiffAumento;
         
         // Time txt
         thisGameTimeTxt.text = GameMethods.FormatToTime(GameData.getThisGameT());
@@ -95,10 +97,6 @@ public class EndlessBehaviour : MonoBehaviour
         GameData.setThisGameT(0);
         GameData.setCountdownT(countdownT);
         GameData.setUpCountdownT(upCountdownT);
-
-        // Moltiplicator of countdown velocity
-        mulCountDown = startCountDownMul;
-        GameData.setMulCountDownT(startCountDownMul);
 
         // Bonus if rowClicking
         GameData.setBonusMul(1);
@@ -119,8 +117,10 @@ public class EndlessBehaviour : MonoBehaviour
         // Se il countdown è attivo
         else
         {
-          //  mulCountDown = GameData.getMulCountDownT() * ;
-            GameData.setCountdownT(GameData.getCountdownT() - (Time.deltaTime * mulCountDown));
+            valueDownPerSec = CalcValueDown();
+
+            // CountdownT è da vedere come una barra che va da 100 a 0
+            GameData.setCountdownT(GameData.getCountdownT() - (Time.deltaTime * valueDownPerSec));
             GameData.setThisGameT(GameData.getThisGameT() + Time.deltaTime);
         }
 
@@ -130,25 +130,22 @@ public class EndlessBehaviour : MonoBehaviour
             if (GameData.getSpriteClick() > tempSpriteClick) SpriteClicked();
             else SpriteMissed();
 
-            //GameData.setBonusMul(1 + GameData.getRowClick() * 0.1f);
             tempSpriteClick = GameData.getSpriteClick();
         }
 
 
         // Aumenta la difficoltà ogni T
-        if (GameData.getThisGameT() > diffChangeDeltaT)
+        if (GameData.getThisGameT() > scoreDiffAumento)
         {
-            diffChangeDeltaT += difficultyChangeT;
-
-            GameData.setUpCountdownT(GameData.getUpCountdownT() * difficultyUpCountMul);
-            GameData.setMulCountDownT(GameData.getMulCountDownT() * difficultyCountMul);
+            diffMul += diffAumento;
+            scoreDiffAumento += keepScoreDiffAumento;
         }
 
         if (Time.time > timeT)
         {
             thisGameTimeTxt.text = GameMethods.FormatToTime(GameData.getThisGameT());
 
-            if (GameData.getBonusMul() > 1.1f) bonusMulTxt.text = "x" + GameData.getBonusMul().ToString("0.0");
+            if (GameData.getRowClick() > 1) bonusMulTxt.text = "x" + GameData.getRowClick().ToString("0");
             else bonusMulTxt.text = "";
 
             timeT += updateTime;
@@ -190,7 +187,7 @@ public class EndlessBehaviour : MonoBehaviour
 
     private void SpriteMissed()
     {
-        GameData.setRowClick(GameData.getRowClick() - 2);
+        GameData.setRowClick(Mathf.Ceil(GameData.getRowClick()/10));
 
         // Se non esiste il gruppo di canva non fa l'anim
         if (onMissAnim.canvasGroup == null) return;
@@ -222,5 +219,18 @@ public class EndlessBehaviour : MonoBehaviour
         GameAnimation.BlinkAlphaAnim(endTxtBlinkAnim);
 
         StartCoroutine(GameMethods.ChangeSceneAnim(endSceneAnim, newSceneName, (endTxtBlinkAnim.blinkNum * endTxtBlinkAnim.animT) * 2));
+    }
+
+    private float CalcValueDown()
+    {
+        float tempValueDown = diffMul * valueCap;
+
+        if (GameData.getRowClick() > 0) clickValueDownPerSec = tempValueDown * diffMul / Mathf.Pow(GameData.getRowClick(), 1f / 4f);
+        else clickValueDownPerSec = tempValueDown;
+
+        if (clickValueDownPerSec < tempValueDown) tempValueDown = clickValueDownPerSec;
+
+        Debug.Log(tempValueDown);
+        return tempValueDown;
     }
 }

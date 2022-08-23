@@ -41,7 +41,8 @@ public class ScoreSliderBehaviour : MonoBehaviour
     {
         timeT = Time.time + updateTime;
 
-        GameData.setTimeSliderMax(GameData.getCountdownT() * 2);
+        // Da cambiare
+        GameData.setTimeSliderMax(100);
 
         sliderObj.maxValue = GameData.getTimeSliderMax();
         sliderObj.minValue = 0;
@@ -50,8 +51,8 @@ public class ScoreSliderBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Time.time > timeT)
-        {
+       // if (Time.time > timeT)
+       // {
             if (GameData.getTimeSliderMax() > sliderObj.maxValue)
             {
                 sliderObj.maxValue = GameData.getTimeSliderMax();
@@ -77,6 +78,6 @@ public class ScoreSliderBehaviour : MonoBehaviour
             mulSliderFill.color = tempColor;
 
             timeT += updateTime;
-        }
+       // }
     }
 }
