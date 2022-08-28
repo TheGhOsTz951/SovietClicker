@@ -1060,10 +1060,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteBehaviour: {fileID: 1608612784}
   thisGameTimeTxt: {fileID: 1668138400}
-  bonusMulTxt: {fileID: 2065643060}
+  rowClickTxt: {fileID: 2065643060}
   cykaFX: {fileID: 1501318052}
-  countdownT: 50
-  upCountdownT: 10
+  thisGameValue: 50
+  AddGameValue: 10
   updateTime: 0.1
   valueCap: 10
   diffAumento: 0.3
@@ -1141,17 +1141,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sliderObj: {fileID: 638051950}
-  mulSliderBg: {fileID: 1080039537}
   mulSliderFill: {fileID: 35200740}
-  mulGap: 30
-  sliderAppearCap: 20
-  mulSliderBgColor: {r: 0.62352943, g: 0.62352943, b: 0.62352943, a: 0}
   mulSliderFillColor: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 0}
-  Fx_FadeTime: 0.5
-  Fx_SliderValueTime: 0.3
   updateTime: 0.01
-  mulScoreUp: 20
-  mulScoreDown: 0.24
 --- !u!1 &1668138399
 GameObject:
   m_ObjectHideFlags: 0

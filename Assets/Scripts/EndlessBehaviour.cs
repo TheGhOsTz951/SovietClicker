@@ -4,36 +4,17 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Custom serializable class
-[System.Serializable]
-public class FadeAnimation
-{
-    public GameObject objToAnim;
-    public CanvasGroup canvasGroup;
-    public float value = 1;
-    public float animT = 0.1f;
-}
-
-[System.Serializable]
-public class BlinkingAnim
-{
-    public CanvasGroup objToAnim;
-    public float value = 0;
-    public float animT = 0.1f;
-    public int blinkNum = 5;
-}
-
 public class EndlessBehaviour : MonoBehaviour
 {
     [Header("- Components")]
     public SpriteBehaviour spriteBehaviour;
     public TextMeshProUGUI thisGameTimeTxt;
-    public TextMeshProUGUI bonusMulTxt;
+    public TextMeshProUGUI rowClickTxt;
     public AudioSource cykaFX;
 
-    [Header("- Time")]
-    public float countdownT;
-    public float upCountdownT;
+    [Header("- Game related")]
+    public float thisGameValue;
+    public float AddGameValue;
     [Tooltip("Ogni quanto tempo parte il codice in update")]
     public float updateTime;
 
@@ -65,6 +46,8 @@ public class EndlessBehaviour : MonoBehaviour
     private float timeT;
     private float tempSpriteClick;
     private bool isClickable;
+    private int rowClick;
+    private float thisGameT;
 
     private void Awake()
     {
@@ -84,9 +67,10 @@ public class EndlessBehaviour : MonoBehaviour
         valueDownPerSec = 1;
         clickValueDownPerSec = 1;
         keepScoreDiffAumento = scoreDiffAumento;
-        
+
         // Time txt
-        thisGameTimeTxt.text = GameMethods.FormatToTime(GameData.getThisGameT());
+        thisGameT = 0;
+        thisGameTimeTxt.text = GameMethods.FormatToTime(thisGameT);
 
         // Sprite click
         isClickable = true;
@@ -94,13 +78,10 @@ public class EndlessBehaviour : MonoBehaviour
         GameData.setSpriteClick(0);
 
         // Setting starting parameters about time
-        GameData.setThisGameT(0);
-        GameData.setCountdownT(countdownT);
-        GameData.setUpCountdownT(upCountdownT);
+        GameData.GameValue = thisGameValue;
 
-        // Bonus if rowClicking
-        GameData.setBonusMul(1);
-        bonusMulTxt.text = "";
+        // RowClick Mul
+        rowClickTxt.text = "";
     }
 
     // Update is called once per frame
@@ -109,7 +90,7 @@ public class EndlessBehaviour : MonoBehaviour
         if (GameData.IsEndGame) return;
 
         // Se il countdown è finito
-        if (GameData.getCountdownT() <= 0)
+        if (GameData.GameValue <= 0)
         {
             EndGame();
             return;
@@ -120,8 +101,8 @@ public class EndlessBehaviour : MonoBehaviour
             valueDownPerSec = CalcValueDown();
 
             // CountdownT è da vedere come una barra che va da 100 a 0
-            GameData.setCountdownT(GameData.getCountdownT() - (Time.deltaTime * valueDownPerSec));
-            GameData.setThisGameT(GameData.getThisGameT() + Time.deltaTime);
+            GameData.GameValue = GameData.GameValue - (Time.deltaTime * valueDownPerSec);
+            thisGameT += Time.deltaTime;
         }
 
         // Se qualcosa è stato cliccato nel campo 2d
@@ -135,7 +116,7 @@ public class EndlessBehaviour : MonoBehaviour
 
 
         // Aumenta la difficoltà ogni T
-        if (GameData.getThisGameT() > scoreDiffAumento)
+        if (thisGameT > scoreDiffAumento)
         {
             diffMul += diffAumento;
             scoreDiffAumento += keepScoreDiffAumento;
@@ -143,10 +124,10 @@ public class EndlessBehaviour : MonoBehaviour
 
         if (Time.time > timeT)
         {
-            thisGameTimeTxt.text = GameMethods.FormatToTime(GameData.getThisGameT());
+            thisGameTimeTxt.text = GameMethods.FormatToTime(thisGameT);
 
-            if (GameData.getRowClick() > 1) bonusMulTxt.text = "x" + GameData.getRowClick().ToString("0");
-            else bonusMulTxt.text = "";
+            if (rowClick > 1) rowClickTxt.text = "x" + rowClick.ToString("0");
+            else rowClickTxt.text = "";
 
             timeT += updateTime;
         }
@@ -168,8 +149,8 @@ public class EndlessBehaviour : MonoBehaviour
     {
         isClickable = false;
 
-        GameData.setRowClick(GameData.getRowClick() + 1);
-        GameData.setCountdownT(GameData.getCountdownT() + GameData.getUpCountdownT() * GameData.getBonusMul());
+        rowClick += 1;
+        GameData.GameValue = GameData.GameValue + AddGameValue;
 
         LeanTween.cancel(onHitAnim.objToAnim);
         LeanTween.alpha(onHitAnim.objToAnim, onHitAnim.value, onHitAnim.animT)
@@ -187,7 +168,8 @@ public class EndlessBehaviour : MonoBehaviour
 
     private void SpriteMissed()
     {
-        GameData.setRowClick(Mathf.Ceil(GameData.getRowClick()/10));
+        rowClick = (int)Mathf.Ceil(rowClick/10);
+        if (rowClick < 0) rowClick = 0;
 
         // Se non esiste il gruppo di canva non fa l'anim
         if (onMissAnim.canvasGroup == null) return;
@@ -205,11 +187,11 @@ public class EndlessBehaviour : MonoBehaviour
         // Game is ended
         GameData.IsEndGame = true;
 
-        GameData.setCountdownT(0);
+        GameData.GameValue = 0;
 
-        if (GameData.getThisGameT() > GameData.getHighScore())
+        if (thisGameT > GameData.getHighScore())
         {
-            GameData.setHighScore(GameData.getThisGameT());
+            GameData.setHighScore(thisGameT);
         }
 
         spriteBehaviour.ChangePos(new Vector3(0, 0, 0));
@@ -225,12 +207,11 @@ public class EndlessBehaviour : MonoBehaviour
     {
         float tempValueDown = diffMul * valueCap;
 
-        if (GameData.getRowClick() > 0) clickValueDownPerSec = tempValueDown * diffMul / Mathf.Pow(GameData.getRowClick(), 1f / 4f);
+        if (rowClick > 0) clickValueDownPerSec = tempValueDown * diffMul / Mathf.Pow(rowClick, 1f / 4f);
         else clickValueDownPerSec = tempValueDown;
 
         if (clickValueDownPerSec < tempValueDown) tempValueDown = clickValueDownPerSec;
 
-        Debug.Log(tempValueDown);
         return tempValueDown;
     }
 }

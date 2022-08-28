@@ -8,43 +8,21 @@ public class ScoreSliderBehaviour : MonoBehaviour
 {
     [Header("-- Objects")]
     public Slider sliderObj;
-    public Image mulSliderBg;
     public Image mulSliderFill;
-    //public TextMeshProUGUI mulScoreText;
-
-    [Header("-- Slider Related")]
-    [Tooltip("Ogni quanto score deve aumentare di multiplier")]
-    public float mulGap;
-    [Tooltip("Punteggio necessario per far comparire la barra (ATTENZIONE! LAVORA CON MUL SCORE UP)")]
-    public float sliderAppearCap;
-    private bool isVisible;
 
     [Header("-- Slider Colors senza alfa")]
-    public Color mulSliderBgColor;
     public Color mulSliderFillColor;
-    
-    [Header("-- Fade animation time")]
-    public float Fx_FadeTime;
-    public float Fx_SliderValueTime;
 
     [Header("-- Update time in seconds")]
     public float updateTime;
     private float timeT;
-    
-    [Header("-- MulScore Variables")]
-    public float mulScoreUp;
-    public float mulScoreDown;
-    private float mulScore;
 
     // Start is called before the first frame update
     void Start()
     {
         timeT = Time.time + updateTime;
 
-        // Da cambiare
-        GameData.setTimeSliderMax(100);
-
-        sliderObj.maxValue = GameData.getTimeSliderMax();
+        sliderObj.maxValue = GameData.GameValue*2;
         sliderObj.minValue = 0;
     }
 
@@ -53,19 +31,14 @@ public class ScoreSliderBehaviour : MonoBehaviour
     {
        // if (Time.time > timeT)
        // {
-            if (GameData.getTimeSliderMax() > sliderObj.maxValue)
+            if (GameData.GameValue > sliderObj.maxValue)
             {
-                sliderObj.maxValue = GameData.getTimeSliderMax();
-            }
-
-            if (GameData.getCountdownT() > sliderObj.maxValue)
-            {
-                GameData.setCountdownT(sliderObj.maxValue);
+                GameData.GameValue = sliderObj.maxValue;
                 sliderObj.value = sliderObj.maxValue;
 
-            } else if (GameData.getCountdownT() > sliderObj.minValue)
+            } else if (GameData.GameValue > sliderObj.minValue)
             {
-                sliderObj.value = GameData.getCountdownT();
+                sliderObj.value = GameData.GameValue;
 
             } else
             {

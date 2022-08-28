@@ -55,9 +55,6 @@ public class SpriteBehaviour : MonoBehaviour
     public void SpriteClicked()
     {
         GameData.setSpriteClick(GameData.getSpriteClick() + 1);
-
-       // if (ChangePosOnClick) RandomPosition();
-       // if (clickFX != null) clickFX.Play();
     }
 
     public void SpriteMissed()
